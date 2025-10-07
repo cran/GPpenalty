@@ -1,0 +1,20 @@
+Package: GPpenalty
+Title: Penalized Likelihood in Gaussian Processes
+Version: 0.1.0
+Authors@R: 
+    person("Ayumi", "Mutoh", , "amutoh@ncsu.edu", role = c("aut", "cre"))
+Description: Implements maximum likelihood estimation for Gaussian processes, supporting both isotropic and separable models with predictive capabilities. Includes penalized likelihood estimation following Li and Sudjianto (2005, <doi:10.1198/004017004000000671>), using score-based metrics that account for uncertainty (See Gneiting and Raftery 2007, <doi:10.1198/016214506000001437>). Includes cross validation techniques for tuning parameter selection. Designed specifically for small datasets.
+License: MIT + file LICENSE
+Encoding: UTF-8
+RoxygenNote: 7.3.3
+Depends: R (>= 3.5.0)
+LinkingTo: Rcpp
+Imports: Rcpp, doParallel, foreach
+Suggests: testthat (>= 3.0.0)
+Config/testthat/edition: 3
+NeedsCompilation: yes
+Packaged: 2025-09-30 21:26:31 UTC; ayumi
+Author: Ayumi Mutoh [aut, cre]
+Maintainer: Ayumi Mutoh <amutoh@ncsu.edu>
+Repository: CRAN
+Date/Publication: 2025-10-07 18:00:07 UTC
