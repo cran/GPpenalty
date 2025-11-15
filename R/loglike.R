@@ -10,27 +10,35 @@
 # ------------------------------
 
 
-nl <- function(par, y, x, lambda=0, dim, mu=FALSE, g=FALSE, fixed_g=NULL, scad=FALSE, profile=TRUE){
+nl <- function(par, y, x, lambda=0, d, mu=FALSE, g=FALSE, fixed_g=NULL, scad=FALSE, profile=TRUE){
 
   # kernel (need to define kernel here for foreach)
-  kernel <- function(x1, theta, x2=NULL, nugget=NULL) {
-    # if(length(theta)==1 & ncol(x)!=1) theta <- rep(theta, ncol(x))
+  kernel <- function(x1, theta, x2=NULL, g=NULL) {
+    transpose <- F
+    if(!is.matrix(x1)) x1 <- matrix(x1)
+
+    if(!is.null(x2)) {
+      transpose <- T
+      if(!is.matrix(x2)) x2 <- matrix(x2)
+      if(ncol(x1)!=ncol(x2)) {
+        stop("the number of columns of x1 and x2 need to match")
+      }
+    }
+
+    if(length(theta)==1 & ncol(x1)!=1) theta <- rep(theta, ncol(x1))
     if(is.null(x2)) {
       x2 <- x1
-      if(is.null(nugget)) nugget <- sqrt(.Machine$double.eps)
-      n <- nrow(x1)
-      # pairwise squared distance
-      k <- outer(1:n, 1:n, Vectorize(function(i, j) {
-        sum(theta*(x1[i,] - x2[j,])^2)
-      }))
-      k <- exp(-k) + diag(nugget, n)
+      if(is.null(g)) {
+        g <- sqrt(.Machine$double.eps)
+      }
     } else {
-      n <- nrow(x1)
-      m <- nrow(x2)
-      k <- outer(1:n, 1:m, Vectorize(function(i, j) {
-        sum(theta*(x1[i,] - x2[j,])^2)
-      }))
-      k <- t(exp(-k))
+      if(is.null(g)) {
+        g <- 0
+      }
+    }
+    k <- kernel_exp(x1=x1, x2=x2, theta=theta, g=g)
+    if(transpose) {
+      k <- t(k)
     }
     return(k)
   }
@@ -38,34 +46,34 @@ nl <- function(par, y, x, lambda=0, dim, mu=FALSE, g=FALSE, fixed_g=NULL, scad=F
 
   eps <- sqrt(.Machine$double.eps)
   n <- length(y)
-  theta <- par[1:dim]
+  theta <- par[1:d]
   if(profile) { # profile log-likelihood
     if(g) { # estimate g
-      g_val <- par[dim+1]
+      g_val <- par[d+1]
     } else { # fix g
       g_val <- if(!is.null(fixed_g)) fixed_g else eps
     }
-    k <- kernel(x1=x, theta=theta, x2=NULL, nugget=g_val)
+    k <- kernel(x1=x, theta=theta, x2=NULL, g=g_val)
   } else { # regulr log-likelihood
-    s2 <- par[dim+1]
+    s2 <- par[d+1]
     if(mu) {
       if(g){
-        mu_val <- par[dim+2]
-        g_val <- par[dim+3]
+        mu_val <- par[d+2]
+        g_val <- par[d+3]
       } else {
-        mu_val <- par[dim+2]
+        mu_val <- par[d+2]
         g_val <- if(!is.null(fixed_g)) fixed_g else eps
       }
     } else {
       if(g) {
         mu_val <- 0
-        g_val <- par[dim+2]
+        g_val <- par[d+2]
       } else {
         mu_val <- 0
         g_val <- if(!is.null(fixed_g)) fixed_g else eps
       }
     }
-    k <- s2*(kernel(x1=x, theta=theta, x2=NULL, nugget=g_val))
+    k <- s2*(kernel(x1=x, theta=theta, x2=NULL, g=g_val))
   }
 
   ki <- solve(k)
@@ -109,84 +117,90 @@ nl <- function(par, y, x, lambda=0, dim, mu=FALSE, g=FALSE, fixed_g=NULL, scad=F
 
 
 # gradient
-gradnl <- function(par, y, x, lambda=0, dim, mu=FALSE, g=FALSE, fixed_g=NULL, scad=FALSE, profile=TRUE) {
+gradnl <- function(par, y, x, lambda=0, d, mu=FALSE, g=FALSE, fixed_g=NULL, scad=FALSE, profile=TRUE) {
 
   # kernel (need to define kernel here for foreach)
-  kernel <- function(x1, theta, x2=NULL, nugget=NULL) {
-    # if(length(theta)==1 & ncol(x)!=1) theta <- rep(theta, ncol(x))
+  kernel <- function(x1, theta, x2=NULL, g=NULL) {
+    transpose <- F
+    if(!is.matrix(x1)) x1 <- matrix(x1)
+
+    if(!is.null(x2)) {
+      transpose <- T
+      if(!is.matrix(x2)) x2 <- matrix(x2)
+      if(ncol(x1)!=ncol(x2)) {
+        stop("the number of columns of x1 and x2 need to match")
+      }
+    }
+
+    if(length(theta)==1 & ncol(x1)!=1) theta <- rep(theta, ncol(x1))
     if(is.null(x2)) {
       x2 <- x1
-      if(is.null(nugget)) nugget <- sqrt(.Machine$double.eps)
-      n <- nrow(x1)
-      # pairwise squared distance
-      k <- outer(1:n, 1:n, Vectorize(function(i, j) {
-        sum(theta*(x1[i,] - x2[j,])^2)
-      }))
-      k <- exp(-k) + diag(nugget, n)
+      if(is.null(g)) {
+        g <- sqrt(.Machine$double.eps)
+      }
     } else {
-      n <- nrow(x1)
-      m <- nrow(x2)
-      k <- outer(1:n, 1:m, Vectorize(function(i, j) {
-        sum(theta*(x1[i,] - x2[j,])^2)
-      }))
-      k <- t(exp(-k))
+      if(is.null(g)) {
+        g <- 0
+      }
+    }
+    k <- kernel_exp(x1=x1, x2=x2, theta=theta, g=g)
+    if(transpose) {
+      k <- t(k)
     }
     return(k)
   }
 
 
   # Euclidean distance (need to define this here for foreach)
-  euclidean_dist <- function(x, X=NULL) {
-    x <- if(!is.matrix(x)) as.matrix(x)
-    if(is.null(X)) {
-      X <- x
-      n <- nrow(x)
-      # pairwise squared distance
-      k <- outer(1:n, 1:n, Vectorize(function(i, j) {
-        sum((x[i,] - x[j,])^2)
-      }))
-    } else {
-      X <- if(!is.matrix(X)) as.matrix(X)
-      n <- nrow(x)
-      m <- nrow(X)
-      k <- outer(1:n, 1:m, Vectorize(function(i, j) {
-        sum((x[i,] - X[j,])^2)
-      }))
+  euclidean_dist <- function(x1, x2=NULL) {
+    if(!is.matrix(x1)) x1 <- matrix(x1)
+
+    if(!is.null(x2)) {
+      if(!is.matrix(x2)) x2 <- matrix(x2)
+      if(ncol(x1)!=ncol(x2)) {
+        stop("the number of columns of x1 and x2 need to match")
+      }
     }
+
+    if(is.null(x2)) {
+      x2 <- x1
+    }
+    k <- eucli_dist(x1=x1, x2=x2)
+
     return(k)
   }
 
   eps <- sqrt(.Machine$double.eps)
   n <- length(y)
-  theta <- par[1:dim]
+  theta <- par[1:d]
   if(profile) { # profile
     if(g) { # estimate g
-      g_val <- par[dim+1]
+      g_val <- par[d+1]
     } else { # fix g
       g_val <- if(!is.null(fixed_g)) fixed_g else eps
     }
-    k <- kernel(x1=x, theta=theta, x2=NULL, nugget=g_val)
+    k <- kernel(x1=x, theta=theta, x2=NULL, g=g_val)
 
   } else { # regular log-likelihood
-    s2 <- par[dim+1]
+    s2 <- par[d+1]
     if(mu) {
       if(g){
-        mu_val <- par[dim+2]
-        g_val <- par[dim+3]
+        mu_val <- par[d+2]
+        g_val <- par[d+3]
       } else {
-        mu_val <- par[dim+2]
+        mu_val <- par[d+2]
         g_val <- if(!is.null(fixed_g)) fixed_g else eps
       }
     } else {
       if(g) {
         mu_val <- 0
-        g_val <- par[dim+2]
+        g_val <- par[d+2]
       } else {
         mu_val <- 0
         g_val <- if(!is.null(fixed_g)) fixed_g else eps
       }
     }
-    c <- kernel(x1=x, theta=theta, x2=NULL, nugget=g_val)
+    c <- kernel(x1=x, theta=theta, x2=NULL, g=g_val)
     k <- s2 * c
   }
 
@@ -209,9 +223,9 @@ gradnl <- function(par, y, x, lambda=0, dim, mu=FALSE, g=FALSE, fixed_g=NULL, sc
   # loop over theta
   for(i in 1:length(theta)) {
     if(profile) {
-      dotk <- - k * euclidean_dist(x=x[, i])
+      dotk <- - k * euclidean_dist(x1=x[, i])
     } else {
-      dotk <- -s2* c * euclidean_dist(x=x[, i])
+      dotk <- -s2* c * euclidean_dist(x1=x[, i])
     }
     if(scad){ # scad
       a <- 3.7

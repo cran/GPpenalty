@@ -9,8 +9,8 @@ mle_penalty(object, one.se = FALSE, lambda = NULL, ncores = 1)
 \arguments{
 \item{object}{A list returned from \code{\link{gp_cv}}.}
 
-\item{one.se}{Logical indicator for selecting the lambda value using the one-standard error. Default is FALSE. When FALSE, the lambda value that
-minimizes mse or maximizes score is selected. When TRUE, the lambda value is chosen based on the one-standard error rule.}
+\item{one.se}{Logical indicator for selecting the lambda value using the one-standard error. Default is FALSE. When FALSE, the lambda value that minimizes mse, dpe, or mahalanobis distance, or maximizes the score, is selected.
+When TRUE, the lambda value is chosen based on the one-standard error rule.}
 
 \item{lambda}{A user specified tuning parameter. This can be provided directly instead of performing cross-validation.}
 
@@ -26,6 +26,8 @@ A list of y, x, and hyperparameters:
 \item \code{mu}: Returns 0 if \code{mu=FALSE} otherwise the estimated mu parameter.
 \item \code{g}: Returns the \code{fixed_g} value if \code{g=FALSE} otherwise the estimated nugget value.
 \item \code{lambda}: A scalar or vector of lambda values evaluated.
+\item \code{theta_upper}: A copy of the upper bound for theta used in \code{\link{gp_cv}} function.
+\item \code{theta_lower}: A copy of the lower bound for theta used in \code{\link{gp_cv}} function.
 }
 }
 \description{
@@ -33,8 +35,8 @@ Computes penalized maximum likelihood estimates for the lengthscale parameter us
 }
 \details{
 This function takes the output from \code{\link{gp_cv}} and computes penalized MLEs for the lengthscale parameter,
-along with MLEs for other model parameters. users may choose to apply the one standard error rule for selectingthe lambda value.
-The \code{\link{gp_cv}} function returns both the optimal lambda and one standard error lambda. See \code{\link{gp_cv}} for details.
+along with MLEs for other model parameters. Users may choose to apply the one standard error rule for selecting the lambda value.
+The \code{\link{gp_cv}} function returns both the optimal lambda and one standard error lambda except for the md metric. See \code{\link{gp_cv}} for details.
 }
 \examples{
 \donttest{

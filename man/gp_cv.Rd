@@ -14,9 +14,12 @@ gp_cv(
   fixed_g = NULL,
   profile = TRUE,
   initialvals = NULL,
+  n_init = 10,
   scad = FALSE,
   k = NULL,
-  metric = "score",
+  theta_upper = 1000,
+  theta_lower = 0.001,
+  metric = "dpe",
   ncores = 1
 )
 }
@@ -42,15 +45,22 @@ Default is FALSE (assumes the data is centered beforehand).}
 Solve the closed forms for scale and mu parameters. When FALSE, the full log-likelihood is optimized (lengthscale, scale, mean, and nugget are estimated together). Default is TRUE.}
 
 \item{initialvals}{A numeric vector or matrix of initial values for optimization. The length should match the number of parameters to estimate.
-Default is NULL. If NULL, 10 sets of initial values are randomly generated.}
+Default is NULL. If NULL, 10 sets of initial values are randomly generated. The number of sets can be specified by specifying \code{n_init}.}
+
+\item{n_init}{An integer indicating the number of randomly generated initial value sets to evaluate when \code{initialvals} is not provided.
+Default is 10.}
 
 \item{scad}{Logical indicator for a lasso penalty (\code{scad=FALSE}) or SCAD penalty (\code{scad=TRUE}) when \code{penalty=TRUE}. Default is lasso penalty.}
 
 \item{k}{The number of folds for k-fold CV. Default is NULL. When NULL, leave-one-out CV using mean squared error metric is performed.
 To conduct k-fold CV, users must specify a value for \code{k}.}
 
-\item{metric}{The evaluation metric used in CV. Default is \code{"score"}. The score metric is only available when \code{k} is specified.
-Supported metrics include score and mean squared error metrics. To use mean squared error metric, set \code{metric="mse"}.}
+\item{theta_upper}{Upper bound for theta in optim. Default is 1000.}
+
+\item{theta_lower}{Lower bound for theta in optim. Default is 0.001.}
+
+\item{metric}{The evaluation metric used in CV. Default is \code{"dpe"}. The available metrics are \code{"dpe"}, \code{"md"}, \code{"score"},
+and \code{"mse"}. The dpe, md, and score metrics are only available when \code{k} is specified.}
 
 \item{ncores}{A number of cores for parallel computing with \code{optim}. Default is 1 (no parallelization). Make sure your system supports the specified number of cores.
 Paralleling is recommended to improve performance.}
@@ -60,18 +70,25 @@ A list includes y, x, selected lambda, and settings:
 \itemize{
 \item \code{y}: A copy of y.
 \item \code{x}: A copy of x.
+\item \code{lambda.dpe.min}: Returned when \code{k} is specified and \code{metric="dpe"}; the lambda value that minimizes the dpe across the folds.
+\item \code{lambda.dpe.1se}: Returned when \code{k} is specified and \code{metric="dpe"}; the lambda value selected using the one-standard-error rule.
 \item \code{lambda.min}: Returned when \code{k} is not specified or \code{metric="mse"}; the lambda value that minimizes mean squared error across the folds.
 \item \code{lambda.1se}: Returned when \code{k} is not specified or \code{metric="mse"}; the lambda value selected using the one-standard-error rule.
 \item \code{lambda.score.max}: Returned when \code{k} is specified and \code{metric="score"}; the lambda value that maximizes the score across the folds.
 \item \code{lambda.score.1se}: Returned when \code{k} is specified and \code{metric="score"}; the lambda value selected using the one-standard-error rule.
+\item \code{lambda.md.min}: Returned when  \code{k} is specified and \code{metric="md"}; the lambda value that minimizes the md across the folds.
+\item \code{lambda.md.1se}: Returned when \code{k} is specified and \code{metric="md"}; the lambda value selected using the one-standard-error rule.
 \item \code{initialvals}: A vector or matrix of initial values used in \code{optim}.
-\item \code{dim}: The dimensionality of the lengthscale parameter. If \code{sep=TRUE}, \code{dim} is equal to the number of columns in x. Otherwise it is set to 1 for isotropic kernels.
+\item \code{n_init}: A copy of n_init: the number of randomly generated initial value sets.
+\item \code{d}: The dimensionality of the lengthscale parameter. If \code{sep=TRUE}, \code{d} is equal to the number of columns in x. Otherwise it is set to 1 for isotropic kernels.
 \item \code{profile}: A copy of the logical indicator for profile likelihood optimization.
 \item \code{mu}: A copy of the logical indicator for mean estimation.
 \item \code{g}: A copy of the logical indicator for nugget estimation.
 \item \code{fixed_g}: The fixed nugget value used when \code{g = FALSE}. If NULL, the nugget is set to 1.490116e-08 in \code{mle_penalty} function.
 \item \code{metric}: A copy of the evaluation metric used in CV.
 \item \code{scad}: A copy of the logical indicator for SCAD penalty usage.
+\item \code{theta_upper}: A copy of theta_upper for optimization.
+\item \code{theta_lower}: A copy of theta_lower for optimization.
 }
 }
 \description{
@@ -79,10 +96,10 @@ Performs cross-validation to select an optimal tuning parameter for penalized ML
 }
 \details{
 This function supports both leave-one-out and k-fold cross-validation for selecting a suitable tuning parameter value in penalized likelihoood estimation.
-Users can choose between evaluation metrics, including score and mse, to guide the selection process.
-The data is split into training and validation sets, and the model is trained on the training data and evaluated on both sets.
-This helps avoid selecting lambda values that lead to poor interpolation by the GP. The function returns the optimal lambda value along with the
-lambda selected using the one-standard error rule.
+Users can choose among several evaluation metrics, including decorrelated prediction error (dpe), Mahalanobis distance (md), score, and mean squared error (mse), to guide the selection process.
+For the dpe, md, and score metrics, only k-fold cross-validation is available, as these metrics account for correlation structure. For leave-one-out cross-validation,
+only the mse metric be used. For dpe, md, and mse metrics, the lambda corresponding to the minimum value across the k folds is selected as optimal. For the score metric, the lambda with the maximum value is selected.
+The function returns the optimal lambda value along with the lambda selected using the one-standard error rule.
 }
 \examples{
 \donttest{
@@ -101,6 +118,18 @@ y <- f_x(x)
 ### k-fold cross validation ###
 cv.lambda <- gp_cv(y, x, k=4)
 
+### mse metric ###
+cv.lambda <- gp_cv(y, x, k=4, metric="mse")
+
+### leave-one-out cross validation ###
+cv.lambda <- gp_cv(y, x)
+
+
+#' ### specify the number of randomly generated initial value sets to be evaluated. ###
+cv.lambda <- gp_cv(y, x, n_init=5)
+
 }
+
+
 
 }

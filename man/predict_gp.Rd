@@ -16,6 +16,7 @@ A list of predictive posterior mean and covariance:
 \itemize{
 \item \code{mup}: vector of predicted posterior mean
 \item \code{Sigmap}: predictive posterior covariance matrix
+\item \code{R}: predictive posterior covariance matrix with the scale parameter removed
 }
 }
 \description{

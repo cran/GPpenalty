@@ -6,8 +6,8 @@ test_that("cv returns expected output", {
   n <- length(y)
   k <- length(y)
   p <- 1
-  dim <- 1
+  d <- 1
   results <- cv(y=y, x=x, lambda=lambda, initialvals=initialvals, n=n, k=k, p=p,
-                dim=dim, fixed_g=0.0000001)
+                d=d, fixed_g=0.0000001)
   expect_true("mse_min" %in% names(results))
 })

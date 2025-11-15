@@ -16,7 +16,7 @@
 #' @title GPpenalty
 #'
 #' @description Implements maximum likelihood estimation for Gaussian processes, supporting both isotropic and anisotropic models with predictive capabilities.
-#' Includes penalized likelihood estimation using score-based metrics that account for uncertainty and cross validation techniques for tuning parameter selection.
+#' Includes penalized likelihood estimation using decorrelated prediction error-based metrics that account for uncertainty and cross validation techniques for tuning parameter selection.
 #' Designed specifically for small datasets.
 #'
 #' @section Functions:
@@ -28,6 +28,9 @@
 #'   \item \code{\link{gp_cv}}: Performs cross-validation to select an optimal tuning parameter for penalized MLE of the lengthscale parameter in Gaussian processes.
 #'   \item \code{\link{mle_penalty}}: Computes penalized maximum likelihood estimates for the lengthscale parameter using \code{optim}.
 #'   \item \code{\link{score}}: Calculates a score value. Higher score values indicate better fits.
+#'   \item \code{\link{dpe}}: Calculates a decorrelated prediction error value. Lower dpe values indicate better fits.
+#'   \item \code{\link{kernel}}: Compute the squared exponential kernel defined as \eqn{k = \exp(-\theta (x - x')^2) + g} , where \eqn{\theta} is the lengthscale parameter and \eqn{g} is a jitter term.
+#'              Both isotropic and separable kernels are supported.
 #' }
 #'
 #' @examples
@@ -49,6 +52,11 @@
 #' # prediction
 #' pred <- predict_gp(fit, x.test)
 #'
+#'
+#' # obtain kernel function
+#' cov_function <- kernel(x1=x, theta=fit$theta)
+#'
+#'
 #' # evaluate the predictive performance with score
 #' score_value <- score(y.test, pred$mup, pred$Sigmap)
 #'
@@ -60,12 +68,12 @@
 #' # prediction
 #' pred.loocv <- predict_gp(fit.loocv, x.test)
 #'
-#' # k-fold cross validation with the score metric
-#' kfold.score <- gp_cv(y, x, k=4)
+#' # k-fold cross validation with the dpe metric
+#' kfold.dpe <- gp_cv(y, x, k=4)
 #' # fit
-#' fit.kfold.score <- mle_penalty(kfold.score)
+#' fit.kfold.dpe <- mle_penalty(kfold.dpe)
 #' # prediction
-#' pred.kfold.score <- predict_gp(fit.kfold.score, x.test)
+#' pred.kfold.dpe <- predict_gp(fit.kfold.dpe, x.test)
 #'
 #' # k-fold cross validation with the mse metric
 #' kfold.mse <- gp_cv(y, x, k=4, metric="mse")

@@ -13,9 +13,12 @@ mle_gp(
   fixed_g = NULL,
   profile = TRUE,
   initialvals = NULL,
+  n_init = 10,
   penalty = FALSE,
   scad = FALSE,
   lambda = 0,
+  theta_upper = 1000,
+  theta_lower = 0.001,
   ncores = 1
 )
 }
@@ -38,13 +41,20 @@ Default is FALSE (assumes the data is centered beforehand).}
 Solve the closed forms for scale and mu parameters. When FALSE, the full log-likelihood is optimized (lengthscale, scale, mean, and nugget are estimated together). Default is TRUE.}
 
 \item{initialvals}{A numeric vector or matrix of initial values for optimization. The length should match the number of parameters to estimate.
-Default is NULL. If NULL, 10 sets of initial values are randomly generated.}
+Default is NULL. If NULL, 10 sets of initial values are randomly generated. The number of sets can be specified by specifying \code{n_init}.}
+
+\item{n_init}{An integer indicating the number of randomly generated initial value sets to evaluate when \code{initialvals} is not provided.
+Default is 10.}
 
 \item{penalty}{Logical indicator for penalization. Default is \code{penalty=FALSE} (returns MLE). When \code{penalty=TRUE} and no lambda value is specified, a set of estimated values along with evaluated lambda values is returned.}
 
 \item{scad}{Logical indicator for a lasso penalty (\code{scad=FALSE}) or SCAD penalty (\code{scad=TRUE}) when \code{penalty=TRUE}. Default is lasso penalty.}
 
 \item{lambda}{Tuning parameter value. Default is 0 (MLE). The user may specify a custom lambda value.}
+
+\item{theta_upper}{Upper bound for theta in optim. Default is 1000.}
+
+\item{theta_lower}{Lower bound for theta in optim. Default is 0.001.}
 
 \item{ncores}{A number of cores for parallel computing with \code{optim}. Default is 1 (no parallelization). Make sure your system supports the specified number of cores.}
 }
@@ -59,6 +69,8 @@ A list of y, x, and hyperparameters:
 \item \code{g}: Returns the \code{fixed_g} value if \code{g=FALSE} otherwise the estimated nugget value.
 \item \code{penalty}: A copy of the penalty indicator.
 \item \code{lambda}: A vector of evaluated lambda values if \code{penalty=TRUE} otherwise NULL.
+\item \code{theta_upper}: A copy of theta_upper for optimization.
+\item \code{theta_lower}: A copy of theta_lower for optimization.
 }
 }
 \description{
@@ -72,7 +84,7 @@ mu parameters. Users have options to choose whether to solve them analytically o
 If mu is assumed to be zero (by setting \code{mu=FALSE}), the input data should be centered beforehand.
 The nugget term (g) can also be optimized alongside the lengthscale parameter or fixed to a small constant.
 When no initial values are provided (\code{initialvals=NULL}), the function generates 10 random sets
-and selects the one that minimizes the negative log-likelihood.
+and selects the one that minimizes the negative log-likelihood. The number of sets can be specified by specifying \code{n_init}.
 Additionally, users can apply a penalty to the lengthscale parameter by specifying a tuning parameter, lambda.
 For guidance on choosing lambda, refer to \code{gp_cv} function.
 }
@@ -105,6 +117,10 @@ fit <- mle_gp(y, x, profile=FALSE)
 
 ### Fix g to a user specified value ###
 fit <- mle_gp(y, x, fixed_g=0.0001)
+
+### Set the upper and lower bounds for theta ###
+fit <- mle_gp(y, x, theta_upper=100, theta_lower=0.01)
+
 }
 
 }
