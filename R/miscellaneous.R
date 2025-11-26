@@ -20,29 +20,6 @@ kriging <- function(y, x, xx, theta, sigma2, mu=0, g=sqrt(.Machine$double.eps)) 
 }
 
 
-# kernel
-# kernel <- function(x1, theta, x2=NULL, nugget=NULL) {
-#   # if(length(theta)==1 & ncol(x)!=1) theta <- rep(theta, ncol(x))
-#   if(is.null(x2)) {
-#     x2 <- x1
-#     if(is.null(nugget)) nugget <- sqrt(.Machine$double.eps)
-#     n <- nrow(x1)
-#     # pairwise squared distance
-#     k <- outer(1:n, 1:n, Vectorize(function(i, j) {
-#       sum(theta*(x1[i,] - x2[j,])^2)
-#     }))
-#     k <- exp(-k) + diag(nugget, n)
-#   } else {
-#     n <- nrow(x1)
-#     m <- nrow(x2)
-#     k <- outer(1:n, 1:m, Vectorize(function(i, j) {
-#       sum(theta*(x1[i,] - x2[j,])^2)
-#     }))
-#     k <- t(exp(-k))
-#   }
-#   return(k)
-# }
-
 # kernel function calls the c++ function
 #' @title kernel
 #' @description Compute the squared exponential kernel defined as \eqn{k = \exp(-\theta (x - x')^2) + g} , where \eqn{\theta} is the lengthscale parameter and \eqn{g} is a jitter term.
@@ -66,7 +43,7 @@ kriging <- function(y, x, xx, theta, sigma2, mu=0, g=sqrt(.Machine$double.eps)) 
 #' theta <- 5
 #' k <- kernel(x1=x, theta=theta)
 #'
-#' ### anisotropic ###
+#' ### separable ###
 #' x <- matrix(seq(0, 20, length=20), ncol=2)
 #' theta <- c(2, 4)
 #' k <- kernel(x1=x, theta=theta)
@@ -101,27 +78,6 @@ kernel <- function(x1, theta, x2=NULL, g=NULL) {
   }
   return(k)
 }
-
-# Euclidean distance
-# euclidean_dist <- function(x, X=NULL) {
-#   x <- if(!is.matrix(x)) as.matrix(x)
-#   if(is.null(X)) {
-#     X <- x
-#     n <- nrow(x)
-#     # pairwise squared distance
-#     k <- outer(1:n, 1:n, Vectorize(function(i, j) {
-#       sum((x[i,] - X[j,])^2)
-#     }))
-#   } else {
-#     X <- if(!is.matrix(X)) as.matrix(X)
-#     n <- nrow(x)
-#     m <- nrow(X)
-#     k <- outer(1:n, 1:m, Vectorize(function(i, j) {
-#       sum((x[i,] - X[j,])^2)
-#     }))
-#   }
-#   return(k)
-# }
 
 
 # for c++ function

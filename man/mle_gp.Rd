@@ -56,7 +56,7 @@ Default is 10.}
 
 \item{theta_lower}{Lower bound for theta in optim. Default is 0.001.}
 
-\item{ncores}{A number of cores for parallel computing with \code{optim}. Default is 1 (no parallelization). Make sure your system supports the specified number of cores.}
+\item{ncores}{A number of cores for parallel computing with \code{optim}. Default is 1. Make sure your system supports the specified number of cores.}
 }
 \value{
 A list of y, x, and hyperparameters:

@@ -4,8 +4,8 @@
 \alias{GPpenalty-package}
 \title{GPpenalty}
 \description{
-Implements maximum likelihood estimation for Gaussian processes, supporting both isotropic and anisotropic models with predictive capabilities.
-Includes penalized likelihood estimation using decorrelated prediction error-based metrics that account for uncertainty and cross validation techniques for tuning parameter selection.
+Implements maximum likelihood estimation for Gaussian processes, supporting both isotropic and separable models with predictive capabilities.
+Includes penalized likelihood estimation, with cross-validation guided by decorrelated prediction error (DPE) metric. DPE metric, motivated by Mahalanobis distance, serves as evaluation criteria that accounts for predictive uncertainty in tuning parameter selection.
 Designed specifically for small datasets.
 }
 \section{Functions}{

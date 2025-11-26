@@ -32,7 +32,7 @@ x <- matrix(seq(0, 10, length=10), ncol=1)
 theta <- 5
 k <- kernel(x1=x, theta=theta)
 
-### anisotropic ###
+### separable ###
 x <- matrix(seq(0, 20, length=20), ncol=2)
 theta <- c(2, 4)
 k <- kernel(x1=x, theta=theta)

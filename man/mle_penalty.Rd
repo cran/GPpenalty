@@ -9,12 +9,12 @@ mle_penalty(object, one.se = FALSE, lambda = NULL, ncores = 1)
 \arguments{
 \item{object}{A list returned from \code{\link{gp_cv}}.}
 
-\item{one.se}{Logical indicator for selecting the lambda value using the one-standard error. Default is FALSE. When FALSE, the lambda value that minimizes mse, dpe, or mahalanobis distance, or maximizes the score, is selected.
+\item{one.se}{Logical indicator for selecting the lambda value using the one-standard error. Default is FALSE. When FALSE, the lambda value that minimizes mse, dpe, or mahalanobis distance (md), or maximizes the score, is selected.
 When TRUE, the lambda value is chosen based on the one-standard error rule.}
 
 \item{lambda}{A user specified tuning parameter. This can be provided directly instead of performing cross-validation.}
 
-\item{ncores}{A number of cores for parallel computing with \code{optim}. Default is 1 (no parallelization). Make sure your system supports the specified number of cores.}
+\item{ncores}{A number of cores for parallel computing with \code{optim}. Default is 1. Make sure your system supports the specified number of cores.}
 }
 \value{
 A list of y, x, and hyperparameters:

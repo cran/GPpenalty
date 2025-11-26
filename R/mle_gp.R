@@ -32,7 +32,7 @@
 #' @param lambda Tuning parameter value. Default is 0 (MLE). The user may specify a custom lambda value.
 #' @param theta_upper Upper bound for theta in optim. Default is 1000.
 #' @param theta_lower Lower bound for theta in optim. Default is 0.001.
-#' @param ncores A number of cores for parallel computing with \code{optim}. Default is 1 (no parallelization). Make sure your system supports the specified number of cores.
+#' @param ncores A number of cores for parallel computing with \code{optim}. Default is 1. Make sure your system supports the specified number of cores.
 #'
 #' @return A list of y, x, and hyperparameters:
 #' \itemize{
@@ -95,7 +95,6 @@ mle_gp <- function(y, x, sep=TRUE, mu=FALSE, g=FALSE, fixed_g=NULL, profile=TRUE
   if(is.list(x)) stop("x needs to be a vector or matrix")
   # check if x is a matrix
   if(is.null(dim(x))) x <- matrix(x, ncol=1)
-  if(!is.null(dim(y))) y <- c(y) # y should be a vector
   # set dimension
   if(sep & ncol(x)!=1) {
     d <- ncol(x)

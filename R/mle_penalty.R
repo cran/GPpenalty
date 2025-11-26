@@ -8,10 +8,10 @@
 #' The \code{\link{gp_cv}} function returns both the optimal lambda and one standard error lambda except for the md metric. See \code{\link{gp_cv}} for details.
 #'
 #' @param object A list returned from \code{\link{gp_cv}}.
-#' @param one.se Logical indicator for selecting the lambda value using the one-standard error. Default is FALSE. When FALSE, the lambda value that minimizes mse, dpe, or mahalanobis distance, or maximizes the score, is selected.
+#' @param one.se Logical indicator for selecting the lambda value using the one-standard error. Default is FALSE. When FALSE, the lambda value that minimizes mse, dpe, or mahalanobis distance (md), or maximizes the score, is selected.
 #'               When TRUE, the lambda value is chosen based on the one-standard error rule.
 #' @param lambda A user specified tuning parameter. This can be provided directly instead of performing cross-validation.
-#' @param ncores A number of cores for parallel computing with \code{optim}. Default is 1 (no parallelization). Make sure your system supports the specified number of cores.
+#' @param ncores A number of cores for parallel computing with \code{optim}. Default is 1. Make sure your system supports the specified number of cores.
 #'
 #' @return A list of y, x, and hyperparameters:
 #' \itemize{

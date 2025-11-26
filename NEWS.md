@@ -1,5 +1,10 @@
-# GPpenalty 1.0.0
+# GPpenalty 1.0.1
+## Minor changes
+* A bug in gp_cv() function has been fixed.
+* Description has been updated. 
 
+
+# GPpenalty 1.0.0
 ## Major changes
 * DPE and kernel functions have been added.
 * DPE and MD metric options have been added in gp_cv() function. 

@@ -95,7 +95,7 @@ A list includes y, x, selected lambda, and settings:
 Performs cross-validation to select an optimal tuning parameter for penalized MLE of the lengthscale parameter in Gaussian processes.
 }
 \details{
-This function supports both leave-one-out and k-fold cross-validation for selecting a suitable tuning parameter value in penalized likelihoood estimation.
+This function supports both leave-one-out and k-fold cross-validation for selecting a suitable tuning parameter value in penalized likelihood estimation.
 Users can choose among several evaluation metrics, including decorrelated prediction error (dpe), Mahalanobis distance (md), score, and mean squared error (mse), to guide the selection process.
 For the dpe, md, and score metrics, only k-fold cross-validation is available, as these metrics account for correlation structure. For leave-one-out cross-validation,
 only the mse metric be used. For dpe, md, and mse metrics, the lambda corresponding to the minimum value across the k folds is selected as optimal. For the score metric, the lambda with the maximum value is selected.
